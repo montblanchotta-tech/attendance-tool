@@ -26,7 +26,7 @@
                         <button type="submit" class="btn btn-primary">ログイン</button>
                     </form>
                     <div class="form-links">
-                        <a href="#" onclick="showRegister()">新規登録はこちら</a>
+                        <a href="#" id="show-register">新規登録はこちら</a>
                     </div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                         <button type="submit" class="btn btn-primary">登録</button>
                     </form>
                     <div class="form-links">
-                        <a href="#" onclick="showLogin()">ログインに戻る</a>
+                        <a href="#" id="show-login">ログインに戻る</a>
                     </div>
                 </div>
             </div>
@@ -70,10 +70,10 @@
                     <h1><i class="fas fa-clock"></i> 勤怠管理システム</h1>
                     <div class="user-info">
                         <span id="user-name">ユーザー名</span>
-                        <button id="admin-btn" onclick="showAdminPage()" class="btn btn-info" style="display: none;">
+                        <button id="admin-btn" class="btn btn-info" style="display: none;">
                             <i class="fas fa-cog"></i> 管理者メニュー
                         </button>
-                        <button onclick="logout()" class="btn btn-secondary">ログアウト</button>
+                        <button id="logout-btn" class="btn btn-secondary">ログアウト</button>
                     </div>
                 </div>
             </header>
@@ -139,7 +139,7 @@
                             <input type="date" id="start-date" onchange="loadAttendanceHistory()">
                             <span>〜</span>
                             <input type="date" id="end-date" onchange="loadAttendanceHistory()">
-                            <button onclick="loadAttendanceHistory()" class="btn btn-secondary">検索</button>
+                            <button id="update-filter" class="btn btn-secondary">検索</button>
                         </div>
                     </div>
                     <div class="history-table">
@@ -166,7 +166,7 @@
                 <div class="history-card" id="correction-requests-card">
                     <div class="card-header">
                         <h2>修正申請履歴</h2>
-                        <button onclick="openNewCorrectionRequestModal()" class="btn btn-success">
+                        <button onclick="openCorrectionRequestModal()" class="btn btn-success">
                             <i class="fas fa-plus"></i> 新規申請
                         </button>
                     </div>
@@ -195,10 +195,10 @@
                 <div class="header-content">
                     <h1><i class="fas fa-cog"></i> 管理者メニュー</h1>
                     <div class="user-info">
-                        <button onclick="showMainPage()" class="btn btn-secondary">
+                        <button id="back-to-main" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> 戻る
                         </button>
-                        <button onclick="logout()" class="btn btn-secondary">ログアウト</button>
+                        <button id="logout-btn" class="btn btn-secondary">ログアウト</button>
                     </div>
                 </div>
             </header>
@@ -312,7 +312,7 @@
                             <input type="date" id="admin-start-date">
                             <span>〜</span>
                             <input type="date" id="admin-end-date">
-                            <button onclick="loadUserAttendance()" class="btn btn-secondary">検索</button>
+                            <button id="update-admin-filter" class="btn btn-secondary">検索</button>
                         </div>
                     </div>
                     <div class="history-table">
@@ -421,6 +421,6 @@
         <div id="message" class="message"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
