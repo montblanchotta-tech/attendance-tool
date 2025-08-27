@@ -4,9 +4,10 @@
 
 // グローバル変数
 let currentUser = null;
+// Vercel用のAPI URL設定
 const API_BASE_URL = window.location.hostname === 'localhost' ? 
     'http://localhost:8001' : 
-    'https://your-backend-app.herokuapp.com';
+    `https://${window.location.hostname}/api`;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
