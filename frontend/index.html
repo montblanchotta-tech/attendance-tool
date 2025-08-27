@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勤怠管理システム</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- ログイン画面 -->
+        <div id="login-page" class="page active">
+            <div class="login-container">
+                <div class="login-form">
+                    <h1><i class="fas fa-clock"></i> 勤怠管理システム</h1>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="username">ユーザー名</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">パスワード</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">ログイン</button>
+                    </form>
+                    <div class="form-links">
+                        <a href="#" onclick="showRegister()">新規登録はこちら</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 登録画面 -->
+        <div id="register-page" class="page">
+            <div class="login-container">
+                <div class="login-form">
+                    <h1><i class="fas fa-user-plus"></i> 新規登録</h1>
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-full-name">氏名</label>
+                            <input type="text" id="reg-full-name" name="full_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-username">ユーザー名</label>
+                            <input type="text" id="reg-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">メールアドレス</label>
+                            <input type="email" id="reg-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">パスワード</label>
+                            <input type="password" id="reg-password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">登録</button>
+                    </form>
+                    <div class="form-links">
+                        <a href="#" onclick="showLogin()">ログインに戻る</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- メイン画面 -->
+        <div id="main-page" class="page">
+            <header class="header">
+                <div class="header-content">
+                    <h1><i class="fas fa-clock"></i> 勤怠管理システム</h1>
+                    <div class="user-info">
+                        <span id="user-name">ユーザー名</span>
+                        <button id="admin-btn" onclick="showAdminPage()" class="btn btn-info" style="display: none;">
+                            <i class="fas fa-cog"></i> 管理者メニュー
+                        </button>
+                        <button onclick="logout()" class="btn btn-secondary">ログアウト</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- 現在の状態表示 -->
+                <div class="status-card">
+                    <h2>今日の勤怠状況</h2>
+                    <div class="current-status">
+                        <div class="status-info">
+                            <div id="current-date"></div>
+                            <div id="current-time"></div>
+                            <div id="work-status" class="work-status">未出勤</div>
+                        </div>
+                        <div class="attendance-actions">
+                            <button id="clock-in-btn" onclick="recordAttendance('clock_in')" class="btn btn-success">
+                                <i class="fas fa-play"></i> 出勤
+                            </button>
+                            <button id="clock-out-btn" onclick="recordAttendance('clock_out')" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> 退勤
+                            </button>
+                            <button id="break-start-btn" onclick="recordAttendance('break_start')" class="btn btn-warning" disabled>
+                                <i class="fas fa-pause"></i> 休憩開始
+                            </button>
+                            <button id="break-end-btn" onclick="recordAttendance('break_end')" class="btn btn-info" disabled>
+                                <i class="fas fa-play"></i> 休憩終了
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日の記録詳細 -->
+                    <div class="today-details">
+                        <div class="time-detail">
+                            <span class="label">出勤時刻:</span>
+                            <span id="today-clock-in">--:--</span>
+                        </div>
+                        <div class="time-detail">
+                            <span class="label">退勤時刻:</span>
+                            <span id="today-clock-out">--:--</span>
+                        </div>
+                        <div class="time-detail">
+                            <span class="label">休憩開始:</span>
+                            <span id="today-break-start">--:--</span>
+                        </div>
+                        <div class="time-detail">
+                            <span class="label">休憩終了:</span>
+                            <span id="today-break-end">--:--</span>
+                        </div>
+                    </div>
+
+                    <!-- メモ入力 -->
+                    <div class="notes-section">
+                        <label for="attendance-notes">メモ</label>
+                        <textarea id="attendance-notes" placeholder="特記事項があれば入力してください"></textarea>
+                    </div>
+                </div>
+
+                <!-- 勤怠履歴 -->
+                <div class="history-card">
+                    <div class="history-header">
+                        <h2>勤怠履歴</h2>
+                        <div class="date-filter">
+                            <input type="date" id="start-date" onchange="loadAttendanceHistory()">
+                            <span>〜</span>
+                            <input type="date" id="end-date" onchange="loadAttendanceHistory()">
+                            <button onclick="loadAttendanceHistory()" class="btn btn-secondary">検索</button>
+                        </div>
+                    </div>
+                    <div class="history-table">
+                        <table id="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>日付</th>
+                                    <th>出勤</th>
+                                    <th>退勤</th>
+                                    <th>休憩開始</th>
+                                    <th>休憩終了</th>
+                                    <th>労働時間</th>
+                                    <th>状態</th>
+                                    <th>メモ</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 修正申請一覧 -->
+                <div class="history-card" id="correction-requests-card">
+                    <div class="card-header">
+                        <h2>修正申請履歴</h2>
+                        <button onclick="openNewCorrectionRequestModal()" class="btn btn-success">
+                            <i class="fas fa-plus"></i> 新規申請
+                        </button>
+                    </div>
+                    <div class="correction-requests-table">
+                        <table id="correction-requests-table">
+                            <thead>
+                                <tr>
+                                    <th>対象日付</th>
+                                    <th>申請内容</th>
+                                    <th>申請理由</th>
+                                    <th>状態</th>
+                                    <th>管理者コメント</th>
+                                    <th>申請日時</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 管理者ページ -->
+        <div id="admin-page" class="page">
+            <header class="header">
+                <div class="header-content">
+                    <h1><i class="fas fa-cog"></i> 管理者メニュー</h1>
+                    <div class="user-info">
+                        <button onclick="showMainPage()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> 戻る
+                        </button>
+                        <button onclick="logout()" class="btn btn-secondary">ログアウト</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <!-- ユーザー管理 -->
+                <div class="admin-card">
+                    <h2>ユーザー管理</h2>
+                    <div class="user-list">
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ユーザー名</th>
+                                    <th>氏名</th>
+                                    <th>メールアドレス</th>
+                                    <th>管理者</th>
+                                    <th>登録日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 勤怠修正 -->
+                <div class="admin-card">
+                    <h2>勤怠記録修正・作成</h2>
+                    <div class="correction-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="correction-user">対象ユーザー</label>
+                                <select id="correction-user" required>
+                                    <option value="">選択してください</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="correction-date">日付</label>
+                                <input type="date" id="correction-date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="correction-clock-in">出勤時刻</label>
+                                <input type="time" id="correction-clock-in">
+                            </div>
+                            <div class="form-group">
+                                <label for="correction-clock-out">退勤時刻</label>
+                                <input type="time" id="correction-clock-out">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="correction-break-start">休憩開始</label>
+                                <input type="time" id="correction-break-start">
+                            </div>
+                            <div class="form-group">
+                                <label for="correction-break-end">休憩終了</label>
+                                <input type="time" id="correction-break-end">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="correction-notes">メモ</label>
+                            <textarea id="correction-notes" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="correction-reason">修正理由 *</label>
+                            <textarea id="correction-reason" rows="2" required placeholder="修正・作成理由を入力してください"></textarea>
+                        </div>
+                        
+                        <div class="correction-actions">
+                            <button onclick="loadExistingRecord()" class="btn btn-info">既存記録を読み込み</button>
+                            <button onclick="createAttendanceRecord()" class="btn btn-success">新規作成</button>
+                            <button onclick="updateAttendanceRecord()" class="btn btn-warning" id="update-btn" style="display: none;">修正実行</button>
+                            <button onclick="clearCorrectionForm()" class="btn btn-secondary">クリア</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 修正申請の承認・管理 -->
+                <div class="admin-card">
+                    <h2>修正申請の管理</h2>
+                    <div class="approval-table">
+                        <table id="admin-correction-requests-table">
+                            <thead>
+                                <tr>
+                                    <th>申請者</th>
+                                    <th>対象日付</th>
+                                    <th>申請内容</th>
+                                    <th>申請理由</th>
+                                    <th>状態</th>
+                                    <th>申請日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択ユーザーの勤怠一覧 -->
+                <div class="admin-card" id="user-attendance-card" style="display: none;">
+                    <div class="card-header">
+                        <h2 id="user-attendance-title">勤怠一覧</h2>
+                        <div class="date-filter">
+                            <input type="date" id="admin-start-date">
+                            <span>〜</span>
+                            <input type="date" id="admin-end-date">
+                            <button onclick="loadUserAttendance()" class="btn btn-secondary">検索</button>
+                        </div>
+                    </div>
+                    <div class="history-table">
+                        <table id="user-attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>日付</th>
+                                    <th>出勤</th>
+                                    <th>退勤</th>
+                                    <th>休憩開始</th>
+                                    <th>休憩終了</th>
+                                    <th>労働時間</th>
+                                    <th>状態</th>
+                                    <th>メモ</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 修正申請モーダル -->
+        <div id="correction-request-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>勤怠修正申請</h3>
+                    <span class="close" onclick="closeCorrectionRequestModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="correction-request-form">
+                        <div class="form-group">
+                            <label for="request-date">対象日付 *</label>
+                            <input type="date" id="request-date" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="request-clock-in">出勤時刻</label>
+                                <input type="time" id="request-clock-in">
+                            </div>
+                            <div class="form-group">
+                                <label for="request-clock-out">退勤時刻</label>
+                                <input type="time" id="request-clock-out">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="request-break-start">休憩開始</label>
+                                <input type="time" id="request-break-start">
+                            </div>
+                            <div class="form-group">
+                                <label for="request-break-end">休憩終了</label>
+                                <input type="time" id="request-break-end">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="request-notes">メモ</label>
+                            <textarea id="request-notes" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="request-reason">申請理由 *</label>
+                            <textarea id="request-reason" rows="3" required placeholder="修正が必要な理由を入力してください"></textarea>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button type="button" onclick="submitCorrectionRequest()" class="btn btn-primary">申請する</button>
+                            <button type="button" onclick="closeCorrectionRequestModal()" class="btn btn-secondary">キャンセル</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 承認モーダル -->
+        <div id="approval-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>修正申請の処理</h3>
+                    <span class="close" onclick="closeApprovalModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="approval-request-details"></div>
+                    <form id="approval-form">
+                        <div class="form-group">
+                            <label for="admin-notes">管理者コメント</label>
+                            <textarea id="admin-notes" rows="3" placeholder="承認・却下の理由や追加コメントを入力"></textarea>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button type="button" onclick="processRequest('approved')" class="btn btn-success">承認</button>
+                            <button type="button" onclick="processRequest('rejected')" class="btn btn-danger">却下</button>
+                            <button type="button" onclick="closeApprovalModal()" class="btn btn-secondary">キャンセル</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- メッセージ表示 -->
+        <div id="message" class="message"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
