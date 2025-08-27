@@ -6,30 +6,8 @@
 let currentUser = null;
 
 // APIベースURLを環境に応じて自動設定
-function getApiBaseUrl() {
-    const hostname = window.location.hostname;
-    const protocol = window.location.protocol;
-    
-    // ローカル環境
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:8001';
-    }
-    
-    // LAN内の他デバイスからアクセス（IPアドレス）
-    if (/^(\d{1,3}\.){3}\d{1,3}$/.test(hostname)) {
-        return `${protocol}//${hostname}:8001`;
-    }
-    
-    // Vercel環境
-    if (hostname.includes('vercel.app')) {
-        return `https://${hostname}/api`;
-    }
-    
-    // その他の本番環境
-    return `${protocol}//${hostname}/api`;
-}
-
-const API_BASE_URL = getApiBaseUrl();
+// 統合サーバーでは常に同じホストの/apiを使用
+const API_BASE_URL = '/api';
 console.log('API Base URL:', API_BASE_URL);
 
 // 初期化
