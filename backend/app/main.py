@@ -1,6 +1,7 @@
 """
 勤怠管理システム - メインアプリケーション
 """
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,10 +15,11 @@ Base.metadata.create_all(bind=engine)
 # FastAPIアプリケーション
 app = FastAPI(title="勤怠管理システム", version="1.0.0")
 
-# CORS設定
+# CORS設定 - 環境変数から許可するオリジンを取得
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,4 +38,5 @@ def read_root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    port = int(os.getenv("PORT", 8001))
+    uvicorn.run(app, host="0.0.0.0", port=port)

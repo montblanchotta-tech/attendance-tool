@@ -34,12 +34,16 @@ def create_correction_request(
             detail="同じ日付で未処理の修正申請が既に存在します"
         )
     
-    # 時刻の妥当性チェック（文字列から一時的にdatetimeに変換）
+    # 時刻の妥当性チェック（少なくとも出勤か退勤のどちらかは必要）
     try:
-        clock_in_dt = time_string_to_datetime(request.requested_date, request.requested_clock_in)
-        clock_out_dt = time_string_to_datetime(request.requested_date, request.requested_clock_out)
-        break_start_dt = time_string_to_datetime(request.requested_date, request.requested_break_start)
-        break_end_dt = time_string_to_datetime(request.requested_date, request.requested_break_end)
+        clock_in_dt = time_string_to_datetime(request.requested_date, request.requested_clock_in) if request.requested_clock_in else None
+        clock_out_dt = time_string_to_datetime(request.requested_date, request.requested_clock_out) if request.requested_clock_out else None
+        break_start_dt = time_string_to_datetime(request.requested_date, request.requested_break_start) if request.requested_break_start else None
+        break_end_dt = time_string_to_datetime(request.requested_date, request.requested_break_end) if request.requested_break_end else None
+        
+        # 少なくとも出勤または退勤のどちらかが設定されている必要がある
+        if not clock_in_dt and not clock_out_dt:
+            raise HTTPException(status_code=400, detail="出勤時刻または退勤時刻のどちらかは入力してください")
         
         validate_attendance_times(clock_in_dt, clock_out_dt, break_start_dt, break_end_dt)
     except HTTPException:

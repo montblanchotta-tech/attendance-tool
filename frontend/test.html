@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API接続テスト</title>
+</head>
+<body>
+    <h1>API接続テスト</h1>
+    <div>
+        <button onclick="testLogin()">ログインテスト</button>
+        <button onclick="testRegister()">登録テスト</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8001';
+        
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'testuser',
+                        password: 'testpass'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<p style="color: green;">ログイン成功: ${JSON.stringify(data, null, 2)}</p>`;
+                } else {
+                    const error = await response.json();
+                    resultDiv.innerHTML = `<p style="color: red;">ログイン失敗: ${error.detail}</p>`;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">ネットワークエラー: ${error.message}</p>`;
+            }
+        }
+        
+        async function testRegister() {
+            const resultDiv = document.getElementById('result');
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'testuser2',
+                        email: 'test2@example.com',
+                        password: 'testpass2',
+                        full_name: 'Test User 2'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `<p style="color: green;">登録成功: ${JSON.stringify(data, null, 2)}</p>`;
+                } else {
+                    const error = await response.json();
+                    resultDiv.innerHTML = `<p style="color: red;">登録失敗: ${error.detail}</p>`;
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">ネットワークエラー: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

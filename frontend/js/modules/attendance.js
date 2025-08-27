@@ -37,7 +37,7 @@ class AttendanceManager {
                     <div class="status-value not-clocked">未出勤</div>
                 </div>
                 <div class="action-buttons">
-                    <button onclick="attendanceManager.recordAttendance('clock_in')" class="btn btn-primary">出勤</button>
+                    <button data-action="clock_in" class="btn btn-primary attendance-btn">出勤</button>
                 </div>
             `;
         } else {
@@ -49,11 +49,11 @@ class AttendanceManager {
             let actionButtons = '';
             if (!data.clock_out) {
                 if (!data.break_start || data.break_end) {
-                    actionButtons += '<button onclick="attendanceManager.recordAttendance(\'break_start\')" class="btn btn-warning">休憩開始</button>';
+                    actionButtons += '<button data-action="break_start" class="btn btn-warning attendance-btn">休憩開始</button>';
                 } else {
-                    actionButtons += '<button onclick="attendanceManager.recordAttendance(\'break_end\')" class="btn btn-warning">休憩終了</button>';
+                    actionButtons += '<button data-action="break_end" class="btn btn-warning attendance-btn">休憩終了</button>';
                 }
-                actionButtons += '<button onclick="attendanceManager.recordAttendance(\'clock_out\')" class="btn btn-danger">退勤</button>';
+                actionButtons += '<button data-action="clock_out" class="btn btn-danger attendance-btn">退勤</button>';
             }
             
             statusDiv.innerHTML = `
@@ -81,6 +81,24 @@ class AttendanceManager {
                     ${actionButtons}
                 </div>
             `;
+        }
+        
+        // イベントリスナーを追加（イベント委任）
+        this.setupAttendanceButtonListeners();
+    }
+
+    // 出勤ボタンのイベントリスナー設定
+    setupAttendanceButtonListeners() {
+        const statusDiv = document.getElementById('attendance-status');
+        if (statusDiv) {
+            statusDiv.addEventListener('click', (e) => {
+                if (e.target.classList.contains('attendance-btn')) {
+                    const action = e.target.getAttribute('data-action');
+                    if (action) {
+                        this.recordAttendance(action);
+                    }
+                }
+            });
         }
     }
 
@@ -168,13 +186,30 @@ class AttendanceManager {
                 <td>${workHours}</td>
                 <td>${record.notes || ''}</td>
                 <td>
-                    <button onclick="correctionManager.openCorrectionRequestModal(${record.id})" 
-                            class="btn btn-sm btn-outline">修正申請</button>
+                    <button data-record-id="${record.id}" class="btn btn-sm btn-outline correction-request-btn">修正申請</button>
                 </td>
             `;
             
             tbody.appendChild(row);
         });
+        
+        // 修正申請ボタンのイベントリスナーを設定
+        this.setupCorrectionRequestListeners();
+    }
+
+    // 修正申請ボタンのイベントリスナー設定
+    setupCorrectionRequestListeners() {
+        const attendanceTable = document.getElementById('attendance-table');
+        if (attendanceTable) {
+            attendanceTable.addEventListener('click', (e) => {
+                if (e.target.classList.contains('correction-request-btn')) {
+                    const recordId = parseInt(e.target.getAttribute('data-record-id'));
+                    if (recordId && window.correctionManager) {
+                        window.correctionManager.openCorrectionRequestModal(recordId);
+                    }
+                }
+            });
+        }
     }
 }
 
