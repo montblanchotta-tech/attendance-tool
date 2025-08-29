@@ -243,21 +243,6 @@ body {
     color: #856404;
 }
 
-.work-status.clocked-in {
-    background: #d4edda;
-    color: #155724;
-}
-
-.work-status.not-clocked {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.work-status.clocked-out {
-    background: #d1ecf1;
-    color: #0c5460;
-}
-
 .attendance-actions {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

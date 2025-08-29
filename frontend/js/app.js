@@ -30,102 +30,45 @@ class App {
     // イベントリスナー設定
     setupEventListeners() {
         // ログイン・登録フォーム
-        const loginForm = document.getElementById('login-form');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => authManager.handleLogin(e));
-        }
-        
-        const registerForm = document.getElementById('register-form');
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => authManager.handleRegister(e));
-        }
+        document.getElementById('login-form').addEventListener('submit', 
+            (e) => authManager.handleLogin(e));
+        document.getElementById('register-form').addEventListener('submit', 
+            (e) => authManager.handleRegister(e));
         
         // 修正申請フォーム
-        const correctionForm = document.getElementById('correction-request-form');
-        if (correctionForm) {
-            correctionForm.addEventListener('submit', (e) => correctionManager.submitCorrectionRequest(e));
-        }
+        document.getElementById('correction-request-form').addEventListener('submit',
+            (e) => correctionManager.submitCorrectionRequest(e));
         
         // 管理者フォーム
-        const editForm = document.getElementById('edit-form');
-        if (editForm) {
-            editForm.addEventListener('submit', (e) => adminManager.updateAttendanceRecord(e));
-        }
+        document.getElementById('edit-form').addEventListener('submit',
+            (e) => adminManager.updateAttendanceRecord(e));
         
         // ページ切り替え
-        const showRegisterBtn = document.getElementById('show-register');
-        if (showRegisterBtn) {
-            showRegisterBtn.addEventListener('click', () => showPage('register-page'));
-        }
-        
-        const showLoginBtn = document.getElementById('show-login');
-        if (showLoginBtn) {
-            showLoginBtn.addEventListener('click', () => showPage('login-page'));
-        }
-        
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => authManager.logout());
-        }
+        document.getElementById('show-register').addEventListener('click',
+            () => showPage('register-page'));
+        document.getElementById('show-login').addEventListener('click',
+            () => showPage('login-page'));
+        document.getElementById('logout-btn').addEventListener('click',
+            () => authManager.logout());
         
         // 管理者ページ
-        const adminBtn = document.getElementById('admin-btn');
-        if (adminBtn) {
-            adminBtn.addEventListener('click', () => this.showAdminPage());
-        }
-        
-        const backToMainBtn = document.getElementById('back-to-main');
-        if (backToMainBtn) {
-            backToMainBtn.addEventListener('click', () => this.showMainPage());
-        }
+        document.getElementById('admin-btn').addEventListener('click',
+            () => this.showAdminPage());
+        document.getElementById('back-to-main').addEventListener('click',
+            () => this.showMainPage());
         
         // フィルター更新
-        const updateFilterBtn = document.getElementById('update-filter');
-        if (updateFilterBtn) {
-            updateFilterBtn.addEventListener('click', () => attendanceManager.loadAttendanceHistory());
-        }
+        document.getElementById('update-filter').addEventListener('click',
+            () => attendanceManager.loadAttendanceHistory());
+        document.getElementById('update-admin-filter').addEventListener('click',
+            () => this.updateAdminFilter());
         
-        const updateAdminFilterBtn = document.getElementById('update-admin-filter');
-        if (updateAdminFilterBtn) {
-            updateAdminFilterBtn.addEventListener('click', () => this.updateAdminFilter());
-        }
-        
-        // 修正申請関連ボタン
-        const newCorrectionBtn = document.getElementById('new-correction-btn');
-        if (newCorrectionBtn) {
-            newCorrectionBtn.addEventListener('click', () => correctionManager.openCorrectionRequestModal());
-        }
-        
-        const closeCorrectionModalBtn = document.getElementById('close-correction-modal');
-        if (closeCorrectionModalBtn) {
-            closeCorrectionModalBtn.addEventListener('click', () => correctionManager.closeCorrectionRequestModal());
-        }
-        
-        const cancelCorrectionBtn = document.getElementById('cancel-correction-btn');
-        if (cancelCorrectionBtn) {
-            cancelCorrectionBtn.addEventListener('click', () => correctionManager.closeCorrectionRequestModal());
-        }
-        
-        // 承認関連ボタン
-        const closeApprovalModalBtn = document.getElementById('close-approval-modal');
-        if (closeApprovalModalBtn) {
-            closeApprovalModalBtn.addEventListener('click', () => adminManager.closeApprovalModal());
-        }
-        
-        const approveBtn = document.getElementById('approve-btn');
-        if (approveBtn) {
-            approveBtn.addEventListener('click', () => adminManager.processRequest('approved'));
-        }
-        
-        const rejectBtn = document.getElementById('reject-btn');
-        if (rejectBtn) {
-            rejectBtn.addEventListener('click', () => adminManager.processRequest('rejected'));
-        }
-        
-        const cancelApprovalBtn = document.getElementById('cancel-approval-btn');
-        if (cancelApprovalBtn) {
-            cancelApprovalBtn.addEventListener('click', () => adminManager.closeApprovalModal());
-        }
+        // モーダル閉じる
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', (e) => {
+                e.target.closest('.modal').style.display = 'none';
+            });
+        });
         
         // モーダル外クリックで閉じる
         window.addEventListener('click', (e) => {
@@ -217,6 +160,11 @@ class App {
 // グローバル関数（HTMLから直接呼び出すため）
 window.openCorrectionRequestModal = () => correctionManager.openCorrectionRequestModal();
 window.closeCorrectionRequestModal = () => correctionManager.closeCorrectionRequestModal();
+window.closeEditModal = () => adminManager.closeEditModal();
+window.openApprovalModal = (id) => adminManager.openApprovalModal(id);
+window.closeApprovalModal = () => adminManager.closeApprovalModal();
+window.approveRequest = () => adminManager.processRequest('approved');
+window.rejectRequest = () => adminManager.processRequest('rejected');
 
 // アプリケーション開始
 document.addEventListener('DOMContentLoaded', () => {

@@ -89,16 +89,16 @@
                             <div id="work-status" class="work-status">未出勤</div>
                         </div>
                         <div class="attendance-actions">
-                            <button id="clock-in-btn" class="btn btn-success">
+                            <button id="clock-in-btn" onclick="recordAttendance('clock_in')" class="btn btn-success">
                                 <i class="fas fa-play"></i> 出勤
                             </button>
-                            <button id="clock-out-btn" class="btn btn-danger" disabled>
+                            <button id="clock-out-btn" onclick="recordAttendance('clock_out')" class="btn btn-danger" disabled>
                                 <i class="fas fa-stop"></i> 退勤
                             </button>
-                            <button id="break-start-btn" class="btn btn-warning" disabled>
+                            <button id="break-start-btn" onclick="recordAttendance('break_start')" class="btn btn-warning" disabled>
                                 <i class="fas fa-pause"></i> 休憩開始
                             </button>
-                            <button id="break-end-btn" class="btn btn-info" disabled>
+                            <button id="break-end-btn" onclick="recordAttendance('break_end')" class="btn btn-info" disabled>
                                 <i class="fas fa-play"></i> 休憩終了
                             </button>
                         </div>
@@ -166,7 +166,7 @@
                 <div class="history-card" id="correction-requests-card">
                     <div class="card-header">
                         <h2>修正申請履歴</h2>
-                        <button id="new-correction-btn" class="btn btn-success">
+                        <button onclick="openCorrectionRequestModal()" class="btn btn-success">
                             <i class="fas fa-plus"></i> 新規申請
                         </button>
                     </div>
@@ -342,7 +342,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>勤怠修正申請</h3>
-                    <span class="close" id="close-correction-modal">&times;</span>
+                    <span class="close" onclick="closeCorrectionRequestModal()">&times;</span>
                 </div>
                 <div class="modal-body">
                     <form id="correction-request-form">
@@ -384,8 +384,8 @@
                         </div>
                         
                         <div class="modal-actions">
-                            <button type="submit" class="btn btn-primary">申請する</button>
-                            <button type="button" id="cancel-correction-btn" class="btn btn-secondary">キャンセル</button>
+                            <button type="button" onclick="submitCorrectionRequest()" class="btn btn-primary">申請する</button>
+                            <button type="button" onclick="closeCorrectionRequestModal()" class="btn btn-secondary">キャンセル</button>
                         </div>
                     </form>
                 </div>
@@ -397,7 +397,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>修正申請の処理</h3>
-                    <span class="close" id="close-approval-modal">&times;</span>
+                    <span class="close" onclick="closeApprovalModal()">&times;</span>
                 </div>
                 <div class="modal-body">
                     <div id="approval-request-details"></div>
@@ -408,9 +408,9 @@
                         </div>
                         
                         <div class="modal-actions">
-                            <button type="button" id="approve-btn" class="btn btn-success">承認</button>
-                            <button type="button" id="reject-btn" class="btn btn-danger">却下</button>
-                            <button type="button" id="cancel-approval-btn" class="btn btn-secondary">キャンセル</button>
+                            <button type="button" onclick="processRequest('approved')" class="btn btn-success">承認</button>
+                            <button type="button" onclick="processRequest('rejected')" class="btn btn-danger">却下</button>
+                            <button type="button" onclick="closeApprovalModal()" class="btn btn-secondary">キャンセル</button>
                         </div>
                     </form>
                 </div>
@@ -421,6 +421,6 @@
         <div id="message" class="message"></div>
     </div>
 
-    <script src="js/debug-app.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>

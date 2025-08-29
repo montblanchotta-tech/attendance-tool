@@ -7,10 +7,19 @@ from typing import Optional, List
 from datetime import datetime
 
 from ..core.database import get_db
-from ..core.security import get_current_user
 from ..models import User, AttendanceRecord
 from ..schemas import AttendanceAction, AttendanceResponse
 from ..services.attendance_utils import validate_attendance_times
+
+# 依存性注入のための関数（循環インポート回避）
+def get_current_user(db: Session = Depends(get_db)) -> User:
+    from ..core.security import verify_token, get_db
+    from fastapi import Depends
+    username = verify_token()
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
+    return user
 
 router = APIRouter(prefix="/attendance", tags=["勤怠管理"])
 

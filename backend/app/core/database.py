@@ -1,21 +1,14 @@
 """
 データベース設定とセッション管理
 """
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from .config import settings
 
-# Vercel環境でのSQLiteファイルパス調整
-database_url = settings.DATABASE_URL
-if "sqlite" in database_url and os.getenv("VERCEL"):
-    # Vercelの書き込み可能ディレクトリを使用
-    database_url = "sqlite:////tmp/attendance.db"
-
 # SQLAlchemy エンジン作成
 engine = create_engine(
-    database_url,
-    connect_args={"check_same_thread": False} if "sqlite" in database_url else {}
+    settings.DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
 )
 
 # セッションファクトリ
