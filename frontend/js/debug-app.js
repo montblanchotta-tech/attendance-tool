@@ -6,8 +6,11 @@
 let currentUser = null;
 
 // APIベースURLを環境に応じて自動設定
-// 統合サーバーでは常に同じホストの/apiを使用
-const API_BASE_URL = '/api';
+const API_BASE_URL = window.location.hostname.includes('vercel.app') 
+    ? '/api' 
+    : window.location.hostname === 'localhost' 
+        ? 'http://localhost:8001/api'
+        : '/api';
 console.log('API Base URL:', API_BASE_URL);
 
 // 初期化
@@ -221,8 +224,18 @@ async function handleLogin(event) {
             body: JSON.stringify(loginData)
         });
 
+        const responseText = await response.text();
+        console.log('レスポンステキスト:', responseText);
+        
         if (response.ok) {
-            const data = await response.json();
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON解析エラー:', parseError);
+                alert('サーバーからの応答が不正です');
+                return;
+            }
             console.log('ログイン成功:', data);
             
             localStorage.setItem('access_token', data.access_token);
@@ -236,7 +249,12 @@ async function handleLogin(event) {
                 loadAttendanceHistory();
             });
         } else {
-            const error = await response.json();
+            let error;
+            try {
+                error = JSON.parse(responseText);
+            } catch (parseError) {
+                error = { detail: responseText || 'サーバーエラーが発生しました' };
+            }
             console.error('ログインエラー:', error);
             alert('ログインに失敗しました: ' + (error.detail || 'エラーが発生しました'));
         }
@@ -260,13 +278,22 @@ async function loadTodayAttendance() {
             }
         });
 
+        const responseText = await response.text();
+        
         if (response.ok) {
-            const data = await response.json();
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON解析エラー:', parseError, 'レスポンス:', responseText);
+                resolve();
+                return;
+            }
             console.log('今日の勤怠データ:', data);
             displayTodayAttendance(data);
             resolve();
         } else {
-            console.error('勤怠データ取得エラー:', response.status);
+            console.error('勤怠データ取得エラー:', response.status, 'レスポンス:', responseText);
             resolve();
         }
     } catch (error) {
@@ -364,13 +391,14 @@ function displayTodayAttendance(data) {
     console.log('- 休憩終了:', breakEndBtn ? !breakEndBtn.disabled : 'N/A');
 }
 
-// 勤怠記録
-async function recordAttendance(action) {
-    console.log('勤怠記録開始:', action);
+// 勤怠記録（リトライ機能付き）
+async function recordAttendance(action, retryCount = 0) {
+    console.log('勤怠記録開始:', action, 'リトライ回数:', retryCount);
     console.log('現在のユーザー:', currentUser);
     console.log('アクセストークン:', localStorage.getItem('access_token') ? '存在' : '存在しない');
     
     const notes = null; // メモ機能は一時的に無効化
+    const maxRetries = 3;
     
     try {
         const response = await fetch(`${API_BASE_URL}/attendance/`, {
@@ -383,20 +411,51 @@ async function recordAttendance(action) {
         });
 
         console.log('勤怠記録レスポンス:', response);
+        const responseText = await response.text();
 
         if (response.ok) {
-            const data = await response.json();
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('JSON解析エラー:', parseError, 'レスポンス:', responseText);
+                alert('サーバーからの応答が不正です');
+                return;
+            }
             console.log('勤怠記録成功:', data);
             loadTodayAttendance(); // 再読み込み
             loadAttendanceHistory(); // 履歴も更新
         } else {
-            const error = await response.json();
+            let error;
+            try {
+                error = JSON.parse(responseText);
+            } catch (parseError) {
+                error = { detail: responseText || 'サーバーエラーが発生しました' };
+            }
             console.error('勤怠記録エラー:', error);
-            alert('記録に失敗しました: ' + (error.detail || 'エラーが発生しました'));
+            
+            // 500系エラーの場合はリトライ
+            if (response.status >= 500 && retryCount < maxRetries) {
+                console.log(`サーバーエラーのため${retryCount + 1}秒後にリトライします...`);
+                setTimeout(() => {
+                    recordAttendance(action, retryCount + 1);
+                }, (retryCount + 1) * 1000);
+            } else {
+                alert('記録に失敗しました: ' + (error.detail || 'エラーが発生しました'));
+            }
         }
     } catch (error) {
         console.error('勤怠記録ネットワークエラー:', error);
-        alert('ネットワークエラーが発生しました: ' + error.message);
+        
+        // ネットワークエラーの場合もリトライ
+        if (retryCount < maxRetries) {
+            console.log(`ネットワークエラーのため${retryCount + 1}秒後にリトライします...`);
+            setTimeout(() => {
+                recordAttendance(action, retryCount + 1);
+            }, (retryCount + 1) * 1000);
+        } else {
+            alert('ネットワークエラーが発生しました: ' + error.message);
+        }
     }
 }
 
