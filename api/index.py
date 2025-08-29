@@ -29,7 +29,7 @@ try:
     handler = app
     
     # デバッグ情報
-    logging.info("Vercel API handler initialized successfully")
+    logging.info("Vercel API handler initialized successfully - Redeployed")
     
 except Exception as e:
     logging.error(f"Failed to initialize Vercel handler: {e}", exc_info=True)
